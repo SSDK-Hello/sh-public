@@ -70,18 +70,20 @@ try {
         }
     }
 
-    # Find winget executable
-    $wingetPath = (Get-ChildItem "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_*_x64__8wekyb3d8bbwe\winget.exe" | Select-Object -First 1 -ExpandProperty FullName)
+    # Find winget executable directory
+    $wingetDir = (Get-ChildItem "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_*_x64__8wekyb3d8bbwe" | Select-Object -First 1 -ExpandProperty FullName)
     
-    if ($null -ne $wingetPath) {
-        Write-Log "winget.exe found at $wingetPath"
+    if ($null -ne $wingetDir) {
+        Write-Log "winget directory found at $wingetDir"
         
         # Retry upgrade command up to 4 times
         $retryCount = 0
         while ($retryCount -lt 4) {
             try {
                 Write-Log "Starting winget upgrade, attempt $($retryCount + 1)"
-                & $wingetPath upgrade --all --accept-package-agreements --accept-source-agreements *>> $logFile
+                Push-Location $wingetDir
+                ./winget.exe upgrade --all --accept-package-agreements --accept-source-agreements *>> $logFile
+                Pop-Location
                 Write-Log "Winget upgrade completed successfully"
                 break
             } catch {
@@ -93,7 +95,7 @@ try {
             }
         }
     } else {
-        Write-Log "winget.exe not found in the expected directory"
+        Write-Log "winget directory not found in the expected location"
         Write-Log "Updater requires elevated permissions. Please re-run as the account CTL"
     }
 } catch {
