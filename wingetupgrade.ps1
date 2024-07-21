@@ -1,5 +1,15 @@
 $logFile = "C:\Temp\winget_upgrade_log2.txt"
 
+# Create C:\Temp directory if it doesn't exist
+if (-not (Test-Path -Path "C:\Temp")) {
+    New-Item -ItemType Directory -Path "C:\Temp" | Out-Null
+}
+
+# Create log file if it doesn't exist
+if (-not (Test-Path -Path $logFile)) {
+    New-Item -ItemType File -Path $logFile | Out-Null
+}
+
 function Write-Log {
     param (
         [Parameter(Mandatory=$true)]
