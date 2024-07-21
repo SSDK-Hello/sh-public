@@ -1,4 +1,4 @@
-$logFile = "C:\Temp\winget_upgrade_log2.txt"
+$logFile = "C:\Temp\winget1239.txt"
 
 # Create C:\Temp directory if it doesn't exist
 if (-not (Test-Path -Path "C:\Temp")) {
@@ -48,13 +48,26 @@ try {
         Write-Log "winget installer downloaded successfully."
         
         Write-Log "Installing winget system-wide..."
-        Add-AppxPackage -Path 'winget.msixbundle' -AllUsers
-        Write-Log "winget installed successfully system-wide."
+        try {
+            $process = Start-Process -FilePath "DISM.EXE" -ArgumentList "/Online", "/Add-ProvisionedAppxPackage", "/PackagePath:`"$PWD\winget.msixbundle`"", "/SkipLicense" -NoNewWindow -PassThru -Wait
+            if ($process.ExitCode -eq 0) {
+                Write-Log "winget installed successfully system-wide."
+            } else {
+                Write-Log "DISM.EXE failed to install winget. Exit code: $($process.ExitCode)"
+                throw "DISM.EXE installation failed"
+            }
+        } catch {
+            Write-Log "Failed to install winget: $_"
+            throw
+        }
 
         # Add winget to system PATH
         $wingetPath = "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_*_x64__8wekyb3d8bbwe"
-        [Environment]::SetEnvironmentVariable("PATH", $Env:Path + ";$wingetPath", [EnvironmentVariableTarget]::Machine)
-        Write-Log "Added winget to system PATH"
+        $systemPath = [Environment]::GetEnvironmentVariable("PATH", [EnvironmentVariableTarget]::Machine)
+        if ($systemPath -notlike "*$wingetPath*") {
+            [Environment]::SetEnvironmentVariable("PATH", $systemPath + ";$wingetPath", [EnvironmentVariableTarget]::Machine)
+            Write-Log "Added winget to system PATH"
+        }
     }
 
     # Find winget executable
