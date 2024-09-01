@@ -37,13 +37,13 @@ Write-Log "Script is running with administrator privileges."
 try {
     Write-Log "Starting script execution..."
     
-    # Force remove C:\winget if it exists
+    # Clean C:\winget directory while keeping wingetupgrade.ps1
     if (Test-Path -Path "C:\winget") {
-        Write-Log "C:\winget directory exists. Attempting to remove it..."
-        Remove-Item -Path "C:\winget" -Recurse -Force
-        Write-Log "C:\winget directory has been removed."
+        Write-Log "C:\winget directory exists. Cleaning up while keeping wingetupgrade.ps1..."
+        Get-ChildItem -Path "C:\winget" -Exclude "wingetupgrade.ps1" | Remove-Item -Recurse -Force
+        Write-Log "C:\winget directory has been cleaned, keeping only wingetupgrade.ps1."
     } else {
-        Write-Log "C:\winget directory does not exist. Proceeding with installation."
+        Write-Log "C:\winget directory does not exist. It will be created during the installation process."
     }
     
     Write-Log "Checking if winget is installed..."
