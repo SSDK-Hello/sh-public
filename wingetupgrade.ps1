@@ -37,6 +37,15 @@ Write-Log "Script is running with administrator privileges."
 try {
     Write-Log "Starting script execution..."
     
+    # Force remove C:\winget if it exists
+    if (Test-Path -Path "C:\winget") {
+        Write-Log "C:\winget directory exists. Attempting to remove it..."
+        Remove-Item -Path "C:\winget" -Recurse -Force
+        Write-Log "C:\winget directory has been removed."
+    } else {
+        Write-Log "C:\winget directory does not exist. Proceeding with installation."
+    }
+    
     Write-Log "Checking if winget is installed..."
     $wingetDir = Get-ChildItem "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_*_x64__8wekyb3d8bbwe" -ErrorAction SilentlyContinue | 
                  Select-Object -First 1 -ExpandProperty FullName
